@@ -9,16 +9,17 @@
 			</view>
 			
 			 <view class="proRow">
-			 	<view class="item flexRowBetween borderB1" v-for="(item,index) in proListDate" :key="index">
+			 	<view class="item flexRowBetween borderB1" v-for="(item,index) in mainData" :key="index">
 					<view class="item_selBtn flex">
-						<image class="seltIcon" src="../../static/images/shopping-icon2.png" mode=""></image>
+						<view><image class="seltIcon" src="../../static/images/shopping-icon3.png" v-if="item.isSelect" @click="choose(index)"></image>
+						<image class="seltIcon" src="../../static/images/shopping-icon2.png" v-if="!item.isSelect" @click="choose(index)"></image></view>
 					</view>
 					<view class="R_cont flexRowBetween">
 						<view class="pic"><image src="../../static/images/submit-ordersl-img.png" mode=""></image></view>
 						<view class="infor">
 			 			<view class="tit fs13">好孩子儿童餐具宝宝学吃饭</view>
 							<view class="flexRowBetween B-price">
-								<view class="price ftw">56</view>
+								<view class="price ftw">{{item.price}}</view>
 								<view class="flexEnd">
 									<view class="numBox flex">
 										<view class="btn" @click="counter(index,'-')">-</view>
@@ -40,27 +41,18 @@
 		<view class="xqbotomBar flexRowBetween borderB1 pdl15"  style="bottom: 110rpx;">
 			<view class="left flex fs13">
 				<view class="">
-					<image class="seltIcon mgr5" src="../../static/images/shopping-icon2.png" mode=""></image>
+					<image class="seltIcon mgr5" @click="chooseAll" v-show="isChooseAll" src="../../static/images/shopping-icon3.png" ></image>
+					<image class="seltIcon mgr5" @click="chooseAll" v-show="!isChooseAll" src="../../static/images/shopping-icon2.png" ></image>
 				</view>
 				<view>全选</view>
 			</view>
-			<view class="flexEnd">
-				<view class="fs12 mgr15 flexEnd">合计<view class="price fs14">178</view></view>
+			<view class="flexEnd" v-show="!is_allDelt">
+				<view class="fs12 mgr15 flexEnd">合计<view class="price fs14">{{totalPrice}}</view></view>
 				<view class="payBtn fs16 white" style="width: 260rpx;"  @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">结算</view>
 			</view>
-			
+			<view class="pubColor flexEnd mgr15" style="width: 34%;" v-show="is_allDelt"><view class="alldeltBtn" @click="deleteAll()">删除</view></view>
 		</view>
 		
-		<!-- 底部全选删除 -->
-		<view class="xqbotomBar flexRowBetween borderB1" v-show="is_allDelt" style="bottom: 110rpx;z-index: 100;">
-			<view class="left flexRowBetween"  style="width: 66%;">
-				<view class="flex color6 mgl10">
-					<image class="seltIcon mgr5" src="../../static/images/shopping-icon2.png" mode=""></image>
-					全选
-				</view>
-			</view>
-			<view class="pubColor flexEnd mgr15" style="width: 34%;"><view class="alldeltBtn">删除</view></view>
-		</view>
 		
 		<!--底部tab键-->
 		<view class="navbar">
@@ -104,11 +96,13 @@
 				wx_info:{},
 				is_show:false,
 				count:1,
-				proListDate:[
-					{price:'59.00',count:'1'},
-					{price:'59.00',count:'1'}
+				mainData:[
+					{isSelect:true,price:'59.00',count:'1'},
+					{isSelect:false,price:'59.00',count:'1'}
 				],
-				is_allDelt:false
+				is_allDelt:false,
+				isChooseAll:false,
+				totalPrice:"59"
 			}
 		},
 		
@@ -124,14 +118,81 @@
 			counter(index,type) {
 				const self = this;
 				if (type == '+') {
-					self.proListDate[index].count++;
+					self.mainData[index].count++;
 				} else {
-					if (self.proListDate[index].count > 1) {
-						self.proListDate[index].count--;
+					if (self.mainData[index].count > 1) {
+						self.mainData[index].count--;
 					}
 				};
-				self.$Utils.setStorageArray('cartData', self.proListDate[index], 'id', 999);
+				self.$Utils.setStorageArray('cartData', self.mainData[index], 'id', 999);
 				self.countTotalPrice();
+			},
+			deleteAll() {
+				const self = this;
+				uni.showModal({
+					title: '提示',
+					content: '确认要删除选中商品吗？',
+					showCancel: true,
+					cancelText: '取消',
+					confirmText: '确认',
+					success: res => {
+						if (res.confirm) {
+							for (var i = 0; i < self.mainData.length; i++) {
+								if(self.mainData[i].isSelect){
+									self.$Utils.delStorageArray('cartData', self.mainData[i], 'id');
+								}
+							};
+							self.mainData = self.$Utils.getStorageArray('cartData');
+						} else if (res.cancel) {
+							console.log('用户点击取消');
+						}
+					},
+				});
+			},
+			checkChooseAll() {
+				const self = this;
+				var isChooseAll = true;
+				for (var i = 0; i < self.mainData.length; i++) {
+					if (!self.mainData[i].isSelect) {
+						isChooseAll = false;
+					};
+				};
+				self.isChooseAll = isChooseAll;
+			},
+			
+			chooseAll() {
+				const self = this;
+				self.isChooseAll = !self.isChooseAll;
+				for (var i = 0; i < self.mainData.length; i++) {
+					self.mainData[i].isSelect = self.isChooseAll;
+					self.$Utils.setStorageArray('cartData', self.mainData[i], 'id', 999);
+				};
+				self.countTotalPrice();
+			},
+			choose(index) {
+				const self = this;
+				
+				if (self.mainData[index].isSelect) {
+					self.mainData[index].isSelect = false;
+				} else {
+					self.mainData[index].isSelect = true;
+				};
+				self.$Utils.setStorageArray('cartData', self.mainData[index], 'id', 999);
+				
+				self.checkChooseAll();
+				self.countTotalPrice();
+			},
+			
+			countTotalPrice() {
+				const self = this;
+				self.totalPrice = 0;
+				
+				for (var i = 0; i < self.mainData.length; i++) {
+					if (self.mainData[i].isSelect) {
+						self.totalPrice += self.mainData[i].price * self.mainData[i].count;
+					};
+				};
+				console.log(self.totalPrice)
 			},
 			getMainData() {
 				const self = this;
