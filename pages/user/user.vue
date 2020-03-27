@@ -6,9 +6,9 @@
 			<view class="infor pdlr4 white">
 				<view class="center fs16" style="height: 88rpx;line-height: 88rpx;">我的</view>
 				<view class="flex pdt20">
-					<view><image class="photo" src="../../static/images/about-img1.png" mode=""></image></view>
+					<view class="photo" style="overflow: hidden;"><open-data type="userAvatarUrl"></open-data></view>
 					<view style="width: 70%;">
-						<view class="fs14 pdb5">哆啦A梦</view>
+						<view class="fs14 pdb5"><open-data type="userNickName"></open-data></view>
 					</view>
 				</view>
 				
@@ -129,7 +129,7 @@
 	
 	.userHead{box-sizing: border-box;position: relative;width: 100%;height: 420rpx;}
 	.userHead .photo{width: 120rpx;height: 120rpx;border-radius: 50%;margin-right: 20rpx;border: 2px solid #ffecca;;box-sizing: border-box;}
-	.userHead .infor{position: absolute;top: 0; right: 0; left: 0;}
+	.userHead .infor{position: absolute;top: 20px; right: 0; left: 0;}
 	
 	.myRowBetween .ll .icon{width: 30rpx;height: 32rpx;margin-right: 20rpx;}
 	

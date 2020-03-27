@@ -3,66 +3,51 @@
 		
 		<view class="banner-box">
 			<swiper class="swiper-box" indicator-dots="true" autoplay="true" interval="3000" duration="1000" indicator-active-color="#757575">
-				<block v-for="(item,index) in labelData" :key="index">
+				<block v-for="(item,index) in mainData.bannerImg" :key="index">
 					<swiper-item class="swiper-item">
-						<image :src="item" class="slide-image" />
+						<image :src="item.url" class="slide-image" />
 					</swiper-item>
 				</block>
 			</swiper>
 		</view>
 		<view class="flexRowBetween pdt15">
-			<view class="fs15 pdl15" style="width: 76%;">babycare奶瓶夹，奶瓶消毒夹耐高温硅胶防滑奶瓶夹子</view>
+			<view class="fs15 pdl15" style="width: 76%;">{{mainData.title?mainData.title:''}}</view>
 			<view class="shareBtn flexCenter color9 fs12" @click="Router.navigateTo({route:{path:'/pages/detailShare/detailShare'}})"><image style="width: 28rpx;height: 28rpx;" src="../../static/images/detailsl-icon.png" mode=""></image><view class="mgl5">分享</view></view>
 		</view>
 		<view class="mglr4 pdtb15">
 			<view class="flex fs12 color9">
-				<view class="mgr20">库存：2421</view>
-				<view>销量：232</view>
+				<view class="mgr20">库存：{{mainData.stock?mainData.stock:''}}</view>
+				<view>销量：{{mainData.sale_count?mainData.sale_count:''}}</view>
 			</view>
 			<view class="flex mgt10">
-				<view class="fs15 ftw red mgr15">拼团价￥88</view>
-				<view class="fs12 color6">市场价￥125</view>
+				<view class="fs15 ftw red mgr15">拼团价￥{{mainData.group_price?mainData.group_price:''}}</view>
+				<view class="fs12 color6">市场价￥{{mainData.price?mainData.price:''}}</view>
 			</view>
 		</view>
 		
 		<view class="f5H5"></view>
 		<view class="detail_join mglr4 pdtb15">
 			<view class="flexRowBetween fs13">
-				<view>45人正在拼团，可直接参与</view>
-				<view class="fs12 color9 flexEnd" @click="Router.navigateTo({route:{path:'/pages/pinDetail-pinMore/pinDetail-pinMore'}})">
+				<view>{{groupData.length}}人正在拼团，可直接参与</view>
+				<view class="fs12 color9 flexEnd" @click="Router.navigateTo({route:{path:'/pages/pinDetail-pinMore/pinDetail-pinMore?id='+mainData.id}})">
 					<view>查看更多</view>
 					<image class="arrowR" style="width: 12rpx;height: 20rpx;" src="../../static/images/detailsl-icon2.png" mode=""></image>
 				</view>
 			</view>
 			<view class="twolist">
-				<view class="item flexRowBetween pdt15">
+				<view class="item flexRowBetween pdt15"  v-for="(item,index) in groupData">
 					<view class="ll flex">
 						<view class="photo">
-							<image src="../../static/images/detailsl-img2.png" mode=""></image>
+							<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 						</view>
-						<view class="tit color6 fs13 avoidOverflow">名称名称名称</view>
+						<view class="tit color6 fs13 avoidOverflow">{{item.title}}</view>
 					</view>
 					<view class="rr flexRowBetween">
 						<view class="downTime">
-							<view class="fs12">还差<span class="red">1人</span>拼成</view>
-							<view class="fs10 color9">剩余23:23:48</view>
+							<view class="fs12">还差<span class="red">{{item.lessNum}}人</span>拼成</view>
+							<view class="fs10 color9">剩余{{countDownList[index].hou}}:{{countDownList[index].min}}:{{countDownList[index].sec}}</view>
 						</view>
-						<view class="go fs12" @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">去拼团</view>
-					</view>
-				</view>
-				<view class="item flexRowBetween pdt15">
-					<view class="ll flex">
-						<view class="photo">
-							<image src="../../static/images/detailsl-img2.png" mode=""></image>
-						</view>
-						<view class="tit color6 fs13 avoidOverflow">名称名称名称</view>
-					</view>
-					<view class="rr flexRowBetween">
-						<view class="downTime">
-							<view class="fs12">还差<span class="red">1人</span>拼成</view>
-							<view class="fs10 color9">剩余23:23:48</view>
-						</view>
-						<view class="go fs12" @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">去拼团</view>
+						<view class="go fs12" :data-group_no="item.group_no" @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim?isGroup=true&group_no='+$event.currentTarget.dataset.group_no}})">去拼团</view>
 					</view>
 				</view>
 			</view>
@@ -72,15 +57,15 @@
 		
 		<view class="orderNav flexRowBetween pdt5 ">
 			<view class="tt flexCenter" :class="curr==1?'on':''" @click="changeCurr('1')">详细介绍</view>
-			<view class="tt flexCenter" :class="curr==2?'on':''"  @click="changeCurr('2')">评论（15）</view>
+			<view class="tt flexCenter" :class="curr==2?'on':''"  @click="changeCurr('2')">评论（{{messageData.length}}）</view>
 		</view>
 		
 		<view class="pdt15" v-show="curr==1">
 			<view class="mglr4 xqInfor">
 				<view class="cont fs14">
-					<view>管理客服电话还房贷两个号和个梵蒂冈悲愤交加鹤骨鸡肤供货方点击可供货方都拉黑干活的放假开个会过分的话看刚发的刚发的个人个人赛退热贴热推监管科了付赛的价格过节费考虑到加工费</view>
-					<view><image class="w" src="../../static/images/detailsl-img1.png" mode="widthFix"></image></view>
-					<view>管理客服电话还房贷两个号和个梵蒂冈悲愤交加鹤骨鸡肤供货方点击可供货方都拉黑干活的放假开个会过分的话看刚发的刚发的个人个人赛退热贴热推监管科了付赛的价格过节费考虑到加工费</view>
+					<view class="content ql-editor" style="padding:0;"
+					v-html="mainData.content">
+					</view>
 				</view>
 			</view>
 		</view>
@@ -92,19 +77,19 @@
 					<view class="cont">
 						<view class="flexRowBetween pdb10 fs12">
 							<view class="flex">
-								<view class="photo mgr5"><image src="../../static/images/detailsl-img2.png" mode=""></image></view>
-								<view class="name color6">哆啦A梦</view>		
+								<view class="photo mgr5"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
+								<view class="name color6">{{item.title}}</view>		
 							</view>
-							<view class="time color9">2020-03-17</view>
+							<view class="time color9">{{item.description}}</view>
 						</view>
-						<view class="text fs13">根据瑞灵活赶紧来都搞好了电话沟通各环节的反馈给换了多个黑客帝国</view>
+						<view class="text fs13">{{item.description}}</view>
 					</view>
 				</view>
 			</view>
 		</view>
 		<view class="xqbotomBar pdl15 center" style="height: 100rpx;">
 			<view class="ite flexCenter fs12" style="width: 180rpx;">
-				<view class="flexColumn">
+				<view class="flexColumn" @click="addCar">
 					<view class="">
 						<image src="../../static/images/detailsl-icon1.png" mode=""></image>
 					</view>
@@ -112,8 +97,8 @@
 				</view>
 			</view>
 			<view class="flexEnd">
-				<view class="payBtn" style="width: 250rpx; background: #ffafcf;" @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">单独购买</view>
-				<view class="payBtn" style="width: 250rpx;" @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">开团</view>
+				<view class="payBtn" style="width: 250rpx; background: #ffafcf;" @click="goBuy(false)">单独购买</view>
+				<view class="payBtn" style="width: 250rpx;" @click="goBuy(true)">开团</view>
 			</view>
 			
 		</view>
@@ -127,22 +112,38 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
-				is_show:false,
-				labelData: [
-					"../../static/images/detailsl-img.png",
-					"../../static/images/detailsl-img.png",
-					"../../static/images/detailsl-img.png"
-				],
+				Utils:this.$Utils,
+				mainData:{},
 				curr:1,
-				messageData:[{},{},{},{}]
+				messageData:[],
+				groupData:[],
+				countDownList: [],
+				endTimeList: [],
 			}
 		},
-		onLoad() {
+		
+		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.id = options.id;
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		onShow() {
+			const self = this;
+			self.orderList = [];
+			uni.removeStorageSync('payPro');
+		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')&&self.curr==2) {
+				self.paginate.currentPage++;
+				self.getMessageData()
+			};
+		},
+		
 		methods: {
 			changeCurr(curr){
 				const self = this;
@@ -150,13 +151,187 @@
 					self.curr = curr
 				}
 			},
+			
+			goBuy(isGroup){
+				const self = this;
+				uni.setStorageSync('canClick',false);
+				self.orderList.push(
+					{product_id:self.mainData.id,count:1,
+					type:1,product:self.mainData},
+				);
+				uni.setStorageSync('payPro', self.orderList);
+				if(isGroup){
+					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim?isGroup=true'}})
+				}else{
+					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})
+				}
+				uni.setStorageSync('canClick',true);
+			},
+			
+			
+			addCar(){
+				const self = this;
+				var array = self.$Utils.getStorageArray('cartData');
+				for (var i = 0; i < array.length; i++) {
+					if(array[i].id == self.id){
+						var target = array[i]
+					}
+				}
+				if(target){
+					target.count  = target.count + 1
+				}else{
+					var target = self.mainData;
+					target.count = 1;
+					target.isSelect = true;
+				}
+				self.$Utils.showToast('加入成功,团购商品与其他商品一起购买恢复原价', 'none');
+				self.$Utils.setStorageArray('cartData', target, 'id', 999);
+			},
+			
 			getMainData() {
 				const self = this;
-				console.log('852369')
 				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					id: self.id
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData = res.info.data[0];
+						const regex = new RegExp('<img', 'gi');
+						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
+						self.getMessageData();
+						self.getGroupData()
+					}
+					console.log('self.mainData', self.mainData)
+					
+				};
+				self.$apis.productGet(postData, callback);
+			},
+			
+			getGroupData() {
+				var self = this;
+				var now = Date.parse(new Date())/1000;
+				var postData = {};
 				postData.tokenFuncName = 'getProjectToken';
+				postData.paginate = {
+					count: 0,
+					currentPage: 1,
+					is_page: true,
+					pagesize: 2
+				};
+				postData.searchItem = {
+					group_status: 2,
+					user_type:0,
+					product_id:self.mainData.id,
+					group_leader: 'true',
+					invalid_time: ['>', now],
+					pay_status:1
+				};
+				postData.getAfter = {
+					groupMember: {
+						tableName: 'Order',
+						middleKey: 'group_no',
+						key: 'group_no',
+						searchItem: {
+							status: 1,
+							pay_status: 1,
+							level:1
+							//group_leader:'false'
+						},
+						condition: '='
+					},
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.groupData.push.apply(self.groupData, res.info.data);
+						for (var i = 0; i < self.groupData.length; i++) {
+							self.endTimeList.push({
+								actEndTime: self.groupData[i].invalid_time
+							})
+							self.groupData[i].lessNum = parseInt(self.groupData[i].standard) - parseInt(self.groupData[i].groupMember.length)
+						};
+						self.countDown();
+					};
+					self.$Utils.finishFunc('getMainData');
+				};
 				self.$apis.orderGet(postData, callback);
-			}
+			},
+			
+			timeFormat(param) { //小于10的格式化函数
+				const self = this;
+				return param < 10 ? '0' + param : param;
+			},
+			
+			countDown() { //倒计时函数
+				// 获取当前时间，同时得到活动结束时间数组
+				const self = this;
+				let newTime = new Date().getTime()/1000;
+				let endTimeList = self.endTimeList;
+				let countDownArr = [];
+				// 对结束时间进行处理渲染到页面
+				for (var i = 0; i < self.endTimeList.length; i++) {
+					let endTime = self.endTimeList[i].actEndTime;
+					let obj = null;
+					// 如果活动未结束，对时间进行处理
+					if (endTime - newTime > 0) {
+						let time = (endTime - newTime);
+						// 获取天、时、分、秒
+						let day = parseInt(time / (60 * 60 * 24));
+						let hou = parseInt(time % (60 * 60 * 24) / 3600);
+						let min = parseInt(time % (60 * 60 * 24) % 3600 / 60);
+						let sec = parseInt(time % (60 * 60 * 24) % 3600 % 60);
+						if (day > 0) {
+							hou = hou + day * 24
+						}
+						obj = {
+							hou: self.timeFormat(hou),
+							min: self.timeFormat(min),
+							sec: self.timeFormat(sec)
+						}
+					} else { //活动已结束，全部设置为'00'
+						obj = {
+							hou: '00',
+							min: '00',
+							sec: '00'
+						}
+					}
+					countDownArr.push(obj);
+			
+				}
+				// 渲染，然后每隔一秒执行一次倒计时函数
+				self.countDownList = countDownArr;
+			
+				setTimeout(this.countDown, 1000);
+			},
+			
+			getMessageData(isNew) {
+				var self = this;
+				if (isNew) {
+					self.messageData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
+				var postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:1,
+					product_no:self.mainData.product_no,
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.messageData.push.apply(self.messageData, res.info.data);
+					};
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.messageGet(postData, callback);
+			},
+			
 		}
 	};
 </script>

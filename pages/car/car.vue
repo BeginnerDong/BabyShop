@@ -3,7 +3,7 @@
 		
 		<view class="mglr4">
 			<view class=" pdtb15 flexRowBetween">
-				<view>全部宝贝(3)</view>
+				<view>全部宝贝({{mainData.length?mainData.length:'0'}})</view>
 				<view class="fs13"  v-show="!is_allDelt" @click="allDeltShow">管理</view>
 				<view class="fs13"  v-show="is_allDelt" @click="allDeltShow">完成</view>
 			</view>
@@ -15,9 +15,9 @@
 						<image class="seltIcon" src="../../static/images/shopping-icon2.png" v-if="!item.isSelect" @click="choose(index)"></image></view>
 					</view>
 					<view class="R_cont flexRowBetween">
-						<view class="pic"><image src="../../static/images/submit-ordersl-img.png" mode=""></image></view>
+						<view class="pic"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
 						<view class="infor">
-			 			<view class="tit fs13">好孩子儿童餐具宝宝学吃饭</view>
+			 			<view class="tit fs13">{{item.title}}</view>
 							<view class="flexRowBetween B-price">
 								<view class="price ftw">{{item.price}}</view>
 								<view class="flexEnd">
@@ -33,7 +33,7 @@
 				</view>
 			 </view>
 			 <!-- 无数据 -->
-			 <view class="nodata"><image src="../../static/images/nodata.png" mode=""></image></view>
+			 <view class="nodata" v-if="mainData.length==0"><image src="../../static/images/nodata.png" mode=""></image></view>
 		</view>
 		
 		
@@ -48,7 +48,7 @@
 			</view>
 			<view class="flexEnd" v-show="!is_allDelt">
 				<view class="fs12 mgr15 flexEnd">合计<view class="price fs14">{{totalPrice}}</view></view>
-				<view class="payBtn fs16 white" style="width: 260rpx;"  @click="Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})">结算</view>
+				<view class="payBtn fs16 white" style="width: 260rpx;"   @click="pay">结算</view>
 			</view>
 			<view class="pubColor flexEnd mgr15" style="width: 34%;" v-show="is_allDelt"><view class="alldeltBtn" @click="deleteAll()">删除</view></view>
 		</view>
@@ -97,24 +97,81 @@
 				is_show:false,
 				count:1,
 				mainData:[
-					{isSelect:true,price:'59.00',count:'1'},
-					{isSelect:false,price:'59.00',count:'1'}
+					
 				],
 				is_allDelt:false,
-				isChooseAll:false,
-				totalPrice:"59"
+				totalPrice:0,
+				isChooseAll:true
 			}
 		},
 		
-		onLoad(options) {
+		onLoad() {
 			const self = this;
 			// self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		onShow() {
+			const self = this;
+			self.mainData = self.$Utils.getStorageArray('cartData');
+			self.checkChooseAll();
+			self.countTotalPrice();
+		},
+		
 		methods: {
+			
+			pay(e) {
+				const self = this;
+				const orderList = [
+				];
+				for (var i = 0; i < self.mainData.length; i++) {
+					if (self.mainData[i].isSelect) {
+						orderList.push({
+							product_id: self.mainData[i].id,
+							count: self.mainData[i].count,
+							product: self.mainData[i]
+						}, );
+					};
+				};
+				if (orderList.length == 0) {
+					self.$Utils.showToast('未选择商品', 'none', 1000);
+					return;
+				};
+				uni.setStorageSync('payPro', orderList);
+				self.$Router.navigateTo({
+					route: {
+						path: '/pages/orderConfim/orderConfim'
+					}
+				})
+			
+			
+			},
+			
+			checkChooseAll() {
+				const self = this;
+				var isChooseAll = true;
+				for (var i = 0; i < self.mainData.length; i++) {
+					if (!self.mainData[i].isSelect) {
+						isChooseAll = false;
+					};
+				};
+				self.isChooseAll = isChooseAll;
+			},
+			
+			chooseAll() {
+				const self = this;
+				self.isChooseAll = !self.isChooseAll;
+				for (var i = 0; i < self.mainData.length; i++) {
+					self.mainData[i].isSelect = self.isChooseAll;
+					self.$Utils.setStorageArray('cartData', self.mainData[i], 'id', 999);
+				};
+				self.countTotalPrice();
+			},
+			
 			allDeltShow(){
 				const self = this;
 				self.is_allDelt = !self.is_allDelt
 			},
+			
 			counter(index,type) {
 				const self = this;
 				if (type == '+') {
@@ -127,6 +184,7 @@
 				self.$Utils.setStorageArray('cartData', self.mainData[index], 'id', 999);
 				self.countTotalPrice();
 			},
+			
 			deleteAll() {
 				const self = this;
 				uni.showModal({
@@ -149,26 +207,9 @@
 					},
 				});
 			},
-			checkChooseAll() {
-				const self = this;
-				var isChooseAll = true;
-				for (var i = 0; i < self.mainData.length; i++) {
-					if (!self.mainData[i].isSelect) {
-						isChooseAll = false;
-					};
-				};
-				self.isChooseAll = isChooseAll;
-			},
 			
-			chooseAll() {
-				const self = this;
-				self.isChooseAll = !self.isChooseAll;
-				for (var i = 0; i < self.mainData.length; i++) {
-					self.mainData[i].isSelect = self.isChooseAll;
-					self.$Utils.setStorageArray('cartData', self.mainData[i], 'id', 999);
-				};
-				self.countTotalPrice();
-			},
+			
+			
 			choose(index) {
 				const self = this;
 				
@@ -194,13 +235,8 @@
 				};
 				console.log(self.totalPrice)
 			},
-			getMainData() {
-				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+			
+			
 		}
 	};
 </script>

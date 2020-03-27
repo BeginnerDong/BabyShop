@@ -8,16 +8,16 @@
 					<view class="flex rr" style="width: 100%;" @click="Router.navigateTo({route:{path:'/pages/seach/seach'}})">
 						<button class="seachBtn" type="button"><image src="../../static/images/home-icon.png" mode=""></image></button>
 						<view class="input">
-							<input type="text" name="" value="" placeholder="活动" placeholder-class="placeholder" />
+							<input type="text" disabled="true" name="" value="" placeholder="活动" placeholder-class="placeholder" />
 						</view>
 					</view>
 				</view>
 				<view class="banner-box pdlr4">
 					<view class="banner">
 						<swiper class="swiper-box" indicator-dots="true" autoplay="true" interval="3000" duration="1000" indicator-active-color="#757575">
-							<block v-for="(item,index) in labelData" :key="index">
+							<block v-for="(item,index) in labelData.mainImg" :key="index">
 								<swiper-item class="swiper-item">
-									<image :src="item" class="slide-image" />
+									<image :src="item.url" class="slide-image" />
 								</swiper-item>
 							</block>
 						</swiper>
@@ -36,10 +36,11 @@
 					<view class="more fs12 center" @click="Router.navigateTo({route:{path:'/pages/productList/productList'}})">查看更多</view>
 				</view>
 				<view class="flex pdlr4 pdt15 pdb15 whiteBj">
-					<view class="item" v-for="(item,index) in hotData" :key="index" @click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
-						<view class="pic"><image src="../../static/images/home-img.png" mode=""></image></view>
-						<view class="tit fs12 avoidOverflow2">好孩子儿童餐具宝宝学吃饭</view>
-						<view class="price ftw">56</view>
+					<view class="item" v-for="(item,index) in hotData" :key="index" :data-id="item.id"
+					@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
+						<view class="pic"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
+						<view class="tit fs12 avoidOverflow2">{{item.title}}</view>
+						<view class="price ftw">{{item.price}}</view>
 					</view>
 				</view>
 			</view>
@@ -48,15 +49,16 @@
 				<view class="xian pubBj mgt5 mgr5" style="width: 4rpx;height: 14rpx;"></view>限时特卖
 			</view>
 			<view class="specialPro">
-				<view class="item radius10 oh" v-for="(item,index) in specialProData" :key="index" @click="Router.navigateTo({route:{path:'/pages/pinDetail/pinDetail'}})">
+				<view class="item radius10 oh" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				 @click="Router.navigateTo({route:{path:'/pages/pinDetail/pinDetail?id='+$event.currentTarget.dataset.id}})">
 					<view class="pic">
-						<image src="../../static/images/home-img1.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
 					</view>
 					<view class="infor">
-						<view class="tit fs15 mgb15">babycare奶瓶夹 奶瓶消毒夹高温硅胶防滑奶瓶夹子</view>
+						<view class="tit fs15 mgb15">{{item.title}}</view>
 						<view class="flex">
-							<view class="red mgr15 fs15 ftw">拼团价￥88</view>
-							<view class="fs12 color6">市场价￥125</view>
+							<view class="red mgr15 fs15 ftw">拼团价￥{{item.group_price}}</view>
+							<view class="fs12 color6">市场价￥{{item.price}}</view>
 						</view>
 					</view>
 				</view>
@@ -101,36 +103,106 @@
 		data() {
 			return {
 				Router:this.$Router,
-				is_show: false,
-				wx_info:{},
-				is_show:false,
-				labelData: [
-					"../../static/images/home-banner.png",
-					"../../static/images/home-banner.png",
-					"../../static/images/home-banner.png"
-				],
-				hotData:[{},{},{}],
-				specialProData:[{},{},{}]
+				labelData:{},
+				hotData:[],
+				specialProData:[{},{},{}],
+				mainData:[]
 			}
 		},
+		
 		onLoad() {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getLabelData','getHotData','getMainData'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
+			
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
+				const postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id:2,
+					category_id:1
+				}
+				postData.order = {
+					listorder: 'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData,res.info.data)
+					};
+					self.$Utils.finishFunc('getMainData');	
+				};
+				self.$apis.productGet(postData, callback);
+			},
+			
 			call(){
 				uni.makePhoneCall({
 					phoneNumber:'15802977845'
 				});
 			},
 			
-			getMainData() {
-				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+			getHotData() {
+				var self = this;
+				var postData = {};
+				postData.paginate = {
+					count: 0,
+					currentPage: 1,
+					is_page: true,
+					pagesize: 3
+				};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					category_id:['not in',[1]]
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.hotData = res.info.data
+					};
+					self.$Utils.finishFunc('getHotData');
+				};
+				self.$apis.productGet(postData, callback);
+			},
+			
+			getLabelData() {
+				var self = this;
+				var postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					title:'首页轮播'
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.labelData = res.info.data[0]
+					};
+					self.$Utils.finishFunc('getLabelData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
 		}
 	};
 </script>
@@ -168,4 +240,14 @@
 	.specialPro .item .pic{width: 100%;height: 300rpx;}
 	.specialPro .item .pic image{width: 100%;height: 100%;}
 	.specialPro .item .infor{padding: 24rpx 4%;}
+	button{
+		background: none;
+	}
+	button::after{
+		border: none;
+	}
+	.button-hover {
+		color: #000000;
+		background: none;
+	}
 </style>

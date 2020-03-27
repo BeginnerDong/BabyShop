@@ -7,17 +7,17 @@
 					<image src="../../static/images/home-icon.png" mode=""></image>
 				</button>
 				<view class="input">
-					<input type="text" name="" value="" placeholder="奶粉" placeholder-class="placeholder" />
+					<input type="text"  v-model="keywords" placeholder="输入关键字搜索" placeholder-class="placeholder" />
 				</view>
 				<view class="delt flexCenter"><text>×</text></view>
 			</view>
-			<view class="fs15 pubColor" @click="Router.navigateTo({route:{path:'/pages/seachProduct/seachProduct'}})">搜索</view>
+			<view class="fs15 pubColor"  @click="search" >搜索</view>
 		</view>
 		
 		<view class="pdlr4 ">
 			<view class="fs15 pdt20 pdb10 ftw">热门搜索</view>
 			<view class="hotLabel flex center pdb10 borderB1">
-				<view class="item" v-for="(item,index) in hotLabel" :key="index">{{item}}</view>
+				<view class="item" v-for="(item,index) in mainData" @click="clickSearch(item.word)" :key="index">{{item.word}}</view>
 			</view>
 			
 			<view class="fs15 pdt15 pdb10 ftw">搜索记录</view>
@@ -37,7 +37,7 @@
 			<view class="fs13 color6 pdb20 borderB1">确定清空搜索记录吗？</view>
 			<view class="flex tip-button">
 				<view class="item"  @click="popupShow">取消</view>
-				<view class="item pubColor">确定</view>
+				<view class="item pubColor" @click="clearHistory()">确定</view>
 			</view>
 		</view>
 		
@@ -52,30 +52,87 @@
 				showView: false,
 				wx_info:{},
 				is_show:false,
-				hotLabel:['奶粉','餐具','玩具','纸尿裤','辅食','衣服'],
-				historyDate:['奶粉','纸尿裤'],
-				is_popupShow:false
+				mainData:[],
+				historyDate:[],
+				is_popupShow:false,
+				keywords:''
 			}
 		},
 		
 		onLoad(options) {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			console.log(uni.getStorageSync('historyDate'))
+			if(uni.getStorageSync('historyDate')){
+				self.historyDate = uni.getStorageSync('historyDate')
+			};
+			console.log(self.historyDate)
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		
 		methods: {
+			
 			popupShow(){
 				const self=this;
 				self.is_popupShow = !self.is_popupShow;
 				self.is_show = !self.is_show;
 				
 			},
-			getMainData() {
+			
+			clickSearch(item){
 				const self = this;
-				console.log('852369')
+				self.Router.navigateTo({route:{path:'/pages/seachProduct/seachProduct?keywords='+item}});
+			},
+			
+			search(){
+				const self = this;
+				if(self.keywords!=''){
+					self.Router.navigateTo({route:{path:'/pages/seachProduct/seachProduct?keywords='+self.keywords}});
+					self.historyDate.push(self.keywords);
+					uni.setStorageSync('historyDate',self.historyDate);
+					self.keywords = '';
+				}else{
+					return
+				}
+			},
+			
+			clearHistory(){
+				const self = this;
+				self.historyDate = [];
+				uni.removeStorageSync('historyDate');
+				self.is_popupShow = !self.is_popupShow;
+				self.is_show = !self.is_show;
+			},
+			
+			getMainData(isNew) {
+				const self = this;
+				if (isNew) {
+					self.mainData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id:2
+				};
+				postData.order = {
+					count:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.mainData.push.apply(self.mainData,res.info.data)
+					}
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.hotSearchGet(postData, callback);
+			},
+			
 		}
 	};
 </script>
@@ -99,5 +156,15 @@
 	.popupShow{ width: 80%;position: fixed; top: 50%;left: 50%;transform: translate(-50%,-50%); z-index: 50;box-sizing: border-box;}
 	.tip-button .item{width: 50%;box-sizing: border-box; line-height: 100rpx;}
 	.tip-button .item:first-child{border-right:1px solid #eee;}
+	button{
+		background: none;
+	}
+	button::after{
+		border: none;
+	}
+	.button-hover {
+		color: #000000;
+		background: none;
+	}
 </style>
 
