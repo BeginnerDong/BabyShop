@@ -14,7 +14,7 @@
 					 <view class="" v-show="curr==1">
 						<view class="flexRowBetween">
 							<view class="editMsg"><input type="text" v-model="orderInfo.name" placeholder="请输入姓名" placeholder-class="placeholder" /></view>
-							<view class="editMsg"><input type="text" v-model="orderInfo.phone" placeholder="请输入姓名" placeholder-class="placeholder" /></view>
+							<view class="editMsg"><input type="number" maxlength="11" v-model="orderInfo.phone" placeholder="请输入电话" placeholder-class="placeholder" /></view>
 						</view>
 						<view class="pdt15">自提地址：{{shopAddress}}</view>
 					</view>

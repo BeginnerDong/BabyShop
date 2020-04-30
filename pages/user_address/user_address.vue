@@ -1,10 +1,10 @@
 <template>
 	<view>
-		<view class="myaddress-lis" v-for="(item,index) in mainData" :key="index" @click="choose(index)">
-			<view class="name">{{item.name}}
+		<view class="myaddress-lis" v-for="(item,index) in mainData" :key="index" >
+			<view class="name" @click="choose(index)">{{item.name}}
 				<view class="numb">{{item.phone}}</view>
 			</view>
-			<view class="adrs">{{item.city+item.detail}}</view>
+			<view class="adrs" @click="choose(index)">{{item.city+item.detail}}</view>
 			<view class="seltBox">
 				<view class="L" :data-id="item.id" @click="updateAddress($event.currentTarget.dataset.id)">
 					<image class="icon" :src="item.isdefault==1?'../../static/images/addressl-icon.png':'../../static/images/addressl-icon1.png'"

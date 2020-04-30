@@ -13,8 +13,10 @@
 		<view class="pdtb15">
 			<view class="flexRowBetween">
 			 	<view class="fs15 pdl15" style="width: 76%;">{{mainData.title?mainData.title:''}}</view>
-				<view class="shareBtn flexCenter color9 fs12" 
-				@click="Router.navigateTo({route:{path:'/pages/detailShare/detailShare'}})"><image style="width: 28rpx;height: 28rpx;" src="../../static/images/detailsl-icon.png" mode=""></image><view class="mgl5">分享</view></view>
+				<button class="shareBtn flexCenter color9 fs12" 
+				open-type="share">
+				<image style="width: 28rpx;height: 28rpx;" src="../../static/images/detailsl-icon.png" mode=""></image>
+				<view class="mgl5">分享</view></button>
 			</view>
 			<view class="fs15 ftw red pdlr4 mgt10">￥{{mainData.price?mainData.price:''}}</view>
 		</view>
@@ -106,6 +108,43 @@
 				self.paginate.currentPage++;
 				self.getMessageData()
 			};
+		},
+		
+		onShareAppMessage(ops) {
+			console.log(ops)
+			const self = this;
+			if (ops.from === 'button') {
+				
+				return {
+					title:self.mainData.title,
+					path: '/pages/detail/detail?id='+self.id, //点击分享的图片进到哪一个页面
+					imageUrl:self.mainData&&self.mainData.mainImg&&self.mainData.mainImg[0]&&self.mainData.mainImg[0].url?self.mainData.mainImg[0].url:'',
+					success: function(res) {
+						// 转发成功
+						
+						console.log("转发成功:" + JSON.stringify(res));
+					},
+					fail: function(res) {
+						// 转发失败
+						console.log("转发失败:" + JSON.stringify(res));
+					}
+				}
+			}else{
+				return {
+					title:self.mainData.title,
+					path: '/pages/detail/detail?id='+self.id, //点击分享的图片进到哪一个页面
+					imageUrl:self.mainData&&self.mainData.mainImg&&self.mainData.mainImg[0]&&self.mainData.mainImg[0].url?self.mainData.mainImg[0].url:'',
+					success: function(res) {
+						// 转发成功
+						
+						console.log("转发成功:" + JSON.stringify(res));
+					},
+					fail: function(res) {
+						// 转发失败
+						console.log("转发失败:" + JSON.stringify(res));
+					}
+				}
+			}
 		},
 		
 		methods: {
@@ -214,6 +253,19 @@
 	.shareBtn{background: #F5F5F5;width: 120rpx;height: 44rpx;border-radius: 25rpx 0 0 25rpx;}
 	
 	.xqbotomBar{z-index: 45;}
+	button{
+		background: none;
+		line-height: 1.5;
+		margin-left: 0;
+		margin-right: 0;
 	
+	}
+	button::after{
+		border: none;
+	}
+	.button-hover {
+		color: #000000;
+		background: none;
+	}
 	
 </style>

@@ -10,7 +10,7 @@
 			<view class="item flexRowBetween pdtb15 borderB1">
 				<view class="ll">手机号</view>
 				<view class="rr fs13" >
-					<input type="number"  v-model="submitData.phone" placeholder="请输入手机号" placeholder-class="placeholder">
+					<input type="number" maxlength="11"  v-model="submitData.phone" placeholder="请输入手机号" placeholder-class="placeholder">
 				</view>
 			</view>	
 			<view class="item flexRowBetween pdtb15 borderB1">
@@ -240,7 +240,8 @@
 					self.submitData.city = res.info.data[0].city;
 					self.submitData.detail = res.info.data[0].detail;
 					self.submitData.phone = res.info.data[0].phone;
-		
+					self.submitData.latitude = res.info.data[0].latitude;
+					self.submitData.longitude = res.info.data[0].longitude;
 					self.submitData.isdefault = res.info.data[0].isdefault;
 					self.$Utils.finishFunc('getMainData');
 				};

@@ -3,7 +3,8 @@
 		
 		<view class="">
 			<view class="proRow">
-				<view class="item flexRowBetween borderB1" v-for="(item,index) in mainData" :key="index" @click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
+				<view class="item flexRowBetween borderB1" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="pic"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
 					<view class="infor">
 						<view class="tit">{{item.title}}</view>

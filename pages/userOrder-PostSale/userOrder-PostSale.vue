@@ -28,7 +28,7 @@
 			<view class="mgt20 pdb15">
 				<view class="fs15">退款/售后原因</view>
 				<view class="mgt10 whiteBj radius10">
-					<textarea v-model="description" placeholder="写出您要退款的原因,帮助您更多的审核通过~" placeholder-class="placeholder" />
+					<textarea v-model="explain" placeholder="写出您要退款的原因,帮助您更多的审核通过~" placeholder-class="placeholder" />
 				</view>
 			</view>
 		</view>
@@ -60,6 +60,11 @@
 			orderUpdate() {
 				const self = this;
 				uni.setStorageSync('canClick', false);
+				if(self.explain==''){
+					uni.setStorageSync('canClick', true);
+					self.$Utils.showToast('请描述退款原因', 'none');
+					return
+				};
 				const postData = {};
 				postData.tokenFuncName = 'getProjectToken';
 				postData.data = {

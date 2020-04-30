@@ -56,14 +56,14 @@
 						<view class="fs12 flexRowBetween mgb10">
 							<view class="color9">交易时间：{{item.create_time}}</view>
 							<view class="red" v-if="item.pay_status==0">待付款</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==0&&item.transport_type==2">待发货</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==1&&item.transport_type==2">待收货</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==2&&item.transport_type!=1">已完成</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==0&&item.transport_type==2&&item.order_step==0">待发货</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==1&&item.transport_type==2&&item.order_step==0">待收货</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==2&&item.transport_type!=1&&item.order_step==0">已完成</view>
 							<view class="red" v-if="item.pay_status==1&&item.order_step>0">退款/售后</view>
-							<view class="red" v-if="item.pay_status==1&&(item.transport_status==0||item.transport_status==1)&&item.transport_type==1">待自提</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==2&&item.transport_type==1">已自提</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==0&&item.transport_type==3">待配送</view>
-							<view class="red" v-if="item.pay_status==1&&item.transport_status==1&&item.transport_type==3">配送中</view>
+							<view class="red" v-if="item.pay_status==1&&(item.transport_status==0||item.transport_status==1)&&item.transport_type==1&&item.order_step==0">待自提</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==2&&item.transport_type==1&&item.order_step==0">已自提</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==0&&item.transport_type==3&&item.order_step==0">待配送</view>
+							<view class="red" v-if="item.pay_status==1&&item.transport_status==1&&item.transport_type==3&&item.order_step==0">配送中</view>
 						</view>
 						<view  v-for="(c_item,c_index) in item.child">
 							<view class="flexRowBetween">
@@ -92,7 +92,7 @@
 						<view class="underBtn flexEnd mgt15" v-if="item.pay_status==0">
 							<view class="Bbtn red" @click="goPay(index)">去支付</view>
 						</view>
-						<view class="underBtn flexEnd mgt15" v-if="(item.pay_status==1&&item.transport_status==0&&item.group_status==0)||(item.pay_status==1&&item.group_status==1)">
+						<view class="underBtn flexEnd mgt15" v-if="((item.pay_status==1&&item.transport_status==0&&item.group_status==0)||(item.pay_status==1&&item.group_status==1))&&item.order_step==0">
 							<view class="Bbtn" :data-id="item.id"  @click="Router.navigateTo({route:{path:'/pages/userOrder-PostSale/userOrder-PostSale?id='+$event.currentTarget.dataset.id}})">退款/售后</view>
 						</view>
 						<view class="underBtn flexEnd mgt15" v-if="item.pay_status==1&&item.transport_status==1">
@@ -254,6 +254,11 @@
 				const self = this;
 				if(curr!= self.curr){
 					self.curr = curr;
+					delete self.searchItem.transport_status;
+					delete self.searchItem.pay_status;
+					delete self.searchItem.order_step;
+					delete self.searchItem.isremark;
+					self.status = 1;
 					if(self.curr==1){
 						self.searchItem.transport_type = 2
 					}else if(self.curr==2){
@@ -280,19 +285,26 @@
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=0;
 						self.searchItem.isremark=0
+						self.searchItem.order_step=0
 					}else if(self.status==4){
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=1;
 						self.searchItem.isremark=0
+						self.searchItem.order_step=0
 					}else if(self.status==5){
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=2;
-							self.searchItem.isremark=0
+						self.searchItem.isremark=0
+						self.searchItem.order_step=0
 					}else if(self.status==6){
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=2;
 						self.searchItem.isremark=1
+						self.searchItem.order_step=0
 					}else if(self.status==7){
+						delete self.searchItem.transport_status;
+						delete self.searchItem.pay_status;
+						delete self.searchItem.isremark;
 						self.searchItem.order_step=['>',0]
 					};
 					self.getMainData(true)
@@ -314,15 +326,21 @@
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=['in',[0,1]];
 						self.searchItem.isremark=0
+						self.searchItem.order_step=0
 					}else if(self.statusTwo==4){
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=2;
 						self.searchItem.isremark=0
+						self.searchItem.order_step=0
 					}else if(self.statusTwo==5){
 						self.searchItem.pay_status=1;
 						self.searchItem.transport_status=2;
 						self.searchItem.isremark=1
+						self.searchItem.order_step=0
 					}else if(self.statusTwo==6){
+						delete self.searchItem.transport_status;
+						delete self.searchItem.pay_status;
+						delete self.searchItem.isremark;
 						self.searchItem.order_step=['>',0]
 					}
 					self.getMainData(true)
@@ -354,6 +372,7 @@
 				postData.tokenFuncName = 'getProjectToken';
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = self.$Utils.cloneForm(self.searchItem);
+				postData.searchItem.user_no = uni.getStorageSync('user_info').user_no;
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData.push.apply(self.mainData, res.info.data);

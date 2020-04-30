@@ -12,7 +12,10 @@
 		</view>
 		<view class="flexRowBetween pdt15">
 			<view class="fs15 pdl15" style="width: 76%;">{{mainData.title?mainData.title:''}}</view>
-			<view class="shareBtn flexCenter color9 fs12" @click="Router.navigateTo({route:{path:'/pages/detailShare/detailShare'}})"><image style="width: 28rpx;height: 28rpx;" src="../../static/images/detailsl-icon.png" mode=""></image><view class="mgl5">分享</view></view>
+			<button class="shareBtn flexCenter color9 fs12" open-type="share">
+				<image style="width: 28rpx;height: 28rpx;" src="../../static/images/detailsl-icon.png" mode=""></image>
+				<view class="mgl5">分享</view>
+			</button>
 		</view>
 		<view class="mglr4 pdtb15">
 			<view class="flex fs12 color9">
@@ -28,12 +31,14 @@
 		<view class="f5H5"></view>
 		<view class="detail_join mglr4 pdtb15">
 			<view class="flexRowBetween fs13">
-				<view>{{groupData.length}}人正在拼团，可直接参与</view>
-				<view class="fs12 color9 flexEnd" @click="Router.navigateTo({route:{path:'/pages/pinDetail-pinMore/pinDetail-pinMore?id='+mainData.id}})">
+				<view  v-if="groupData.length>0">{{groupData.length}}人正在拼团，可直接参与</view>
+				<view  v-else>还没有人开团，快去开团吧</view>
+				<view v-if="groupData.length>0" class="fs12 color9 flexEnd" @click="Router.navigateTo({route:{path:'/pages/pinDetail-pinMore/pinDetail-pinMore?id='+mainData.id}})">
 					<view>查看更多</view>
 					<image class="arrowR" style="width: 12rpx;height: 20rpx;" src="../../static/images/detailsl-icon2.png" mode=""></image>
 				</view>
 			</view>
+			
 			<view class="twolist">
 				<view class="item flexRowBetween pdt15"  v-for="(item,index) in groupData">
 					<view class="ll flex">
@@ -77,8 +82,8 @@
 					<view class="cont">
 						<view class="flexRowBetween pdb10 fs12">
 							<view class="flex">
-								<view class="photo mgr5"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
-								<view class="name color6">{{item.title}}</view>		
+								<view class="photo mgr5"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:'../../static/images/about-img10.png'" mode=""></image></view>
+								<view class="name color6">{{item.title!=''?item.title:item.user_no}}</view>		
 							</view>
 							<view class="time color9">{{item.description}}</view>
 						</view>
@@ -98,7 +103,7 @@
 			</view>
 			<view class="flexEnd">
 				<view class="payBtn" style="width: 250rpx; background: #ffafcf;" @click="goBuy(false)">单独购买</view>
-				<view class="payBtn" style="width: 250rpx;" @click="goBuy(true)">开团</view>
+				<view class="payBtn"  style="width: 250rpx;" @click="goBuy(true)">开团</view>
 			</view>
 			
 		</view>
@@ -119,6 +124,7 @@
 				groupData:[],
 				countDownList: [],
 				endTimeList: [],
+				canGroup:true
 			}
 		},
 		
@@ -144,6 +150,43 @@
 			};
 		},
 		
+		onShareAppMessage(ops) {
+			console.log(ops)
+			const self = this;
+			if (ops.from === 'button') {
+				
+				return {
+					title:self.mainData.title,
+					path: '/pages/detail/detail?id='+self.id, //点击分享的图片进到哪一个页面
+					imageUrl:self.mainData&&self.mainData.mainImg&&self.mainData.mainImg[0]&&self.mainData.mainImg[0].url?self.mainData.mainImg[0].url:'',
+					success: function(res) {
+						// 转发成功
+						
+						console.log("转发成功:" + JSON.stringify(res));
+					},
+					fail: function(res) {
+						// 转发失败
+						console.log("转发失败:" + JSON.stringify(res));
+					}
+				}
+			}else{
+				return {
+					title:self.mainData.title,
+					path: '/pages/detail/detail?id='+self.id, //点击分享的图片进到哪一个页面
+					imageUrl:self.mainData&&self.mainData.mainImg&&self.mainData.mainImg[0]&&self.mainData.mainImg[0].url?self.mainData.mainImg[0].url:'',
+					success: function(res) {
+						// 转发成功
+						
+						console.log("转发成功:" + JSON.stringify(res));
+					},
+					fail: function(res) {
+						// 转发失败
+						console.log("转发失败:" + JSON.stringify(res));
+					}
+				}
+			}
+		},
+		
 		methods: {
 			changeCurr(curr){
 				const self = this;
@@ -161,6 +204,22 @@
 				);
 				uni.setStorageSync('payPro', self.orderList);
 				if(isGroup){
+					if(Date.parse(new Date())>parseInt(self.mainData.end_time)){
+						uni.showModal({
+							title:'提示',
+							content:'限时特卖已结束，请单独购买',
+							showCancel:false,
+						})
+						return
+					}
+					if(Date.parse(new Date())<parseInt(self.mainData.start_time)){
+						uni.showModal({
+							title:'提示',
+							content:'限时特卖还未开始，请单独购买',
+							showCancel:false,
+						})
+						return
+					};
 					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim?isGroup=true'}})
 				}else{
 					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})
@@ -202,6 +261,9 @@
 						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
 						self.getMessageData();
 						self.getGroupData()
+						if(Date.parse(new Date())<parseInt(self.mainData.end_time)){
+							self.canGroup = false
+						}
 					}
 					console.log('self.mainData', self.mainData)
 					
@@ -221,7 +283,7 @@
 					pagesize: 2
 				};
 				postData.searchItem = {
-					group_status: 2,
+					group_status: 1,
 					user_type:0,
 					product_id:self.mainData.id,
 					group_leader: 'true',
@@ -351,6 +413,19 @@
 	.shareBtn{background: #F5F5F5;width: 120rpx;height: 44rpx;border-radius: 25rpx 0 0 25rpx;}
 	
 	.xqbotomBar{z-index: 45;}
-	
+	button{
+		background: none;
+		line-height: 1.5;
+		margin-left: 0;
+		margin-right: 0;
+
+	}
+	button::after{
+		border: none;
+	}
+	.button-hover {
+		color: #000000;
+		background: none;
+	}
 
 </style>
