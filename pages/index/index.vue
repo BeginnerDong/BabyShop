@@ -8,7 +8,7 @@
 					<view class="flex rr" style="width: 100%;" @click="Router.navigateTo({route:{path:'/pages/seach/seach'}})">
 						<button class="seachBtn" type="button"><image src="../../static/images/home-icon.png" mode=""></image></button>
 						<view class="input">
-							<input type="text" disabled="true" name="" value="" placeholder="活动" placeholder-class="placeholder" />
+							<input type="text" disabled="true" name="" value="" placeholder="搜索商品" placeholder-class="placeholder" />
 						</view>
 					</view>
 				</view>
