@@ -258,7 +258,7 @@
 					if (res.info.data.length > 0) {
 						self.mainData = res.info.data[0];
 						const regex = new RegExp('<img', 'gi');
-						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;"`);
+						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;height:auto;"`);
 						self.getMessageData();
 						self.getGroupData()
 						if(Date.parse(new Date())<parseInt(self.mainData.end_time)){
@@ -403,7 +403,7 @@
 	@import "../../assets/style/detail.css";
 	page{padding-bottom:140rpx;}
 	
-	.swiper-box {height: 400rpx;box-sizing: border-box;overflow: hidden;}
+	.swiper-box {height: 750rpx;box-sizing: border-box;overflow: hidden;}
 	.swiper-box swiper-item{width: 100%;box-sizing: border-box;overflow: hidden;}
 	.swiper-box swiper-item image{width: 100%;height: 100%;box-sizing: border-box;}
 	

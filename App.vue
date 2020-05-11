@@ -23,6 +23,7 @@
 	uni-page-head .uni-page-head__title{font-weight: normal;}
 	uni-swiper .uni-swiper-dot{width: 12rpx;height: 6rpx;border-radius: 6rpx;background-color: #c5c5c5;}
 	uni-swiper .uni-swiper-dot-active{width: 20rpx;}
+	.ql-editor image{max-width: 100%;margin: 0 auto;}
 	.ql-editor img{max-width: 100%;margin: 0 auto;}
 	
 </style>
