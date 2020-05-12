@@ -72,6 +72,13 @@
 					</view>
 				</view>
 			</view>
+			
+			<view class="pdlr4 flexRowBetween whiteBj pdt15 pdb15 radius8 mgt15">
+				<view>备注：</view>
+				<view class="BZ-Text"><input type="text" value="" placeholder="请输入备注信息" placeholder-class="" /></view>
+			</view>
+			
+			
 		</view>
 		
 		<view class="xqbotomBar">
@@ -416,4 +423,6 @@
 		background: none;
 	}
 	
+	.BZ-Text{width: 75%;}
+	.BZ-Text input{width: 100%;height: 60rpx;line-height: 60rpx;box-sizing: border-box;text-align: center;font-size: 26rpx;text-align: right;}
 </style>

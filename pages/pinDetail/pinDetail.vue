@@ -60,6 +60,18 @@
 		
 		<view class="f5H5"></view>
 		
+		<view class="mglr4 pdtb15  color6">
+			<view class="flexRowBetween" @click="spaceShow">
+				<view class="fs13">规格选择</view>
+				<view class="arrowR"><image src="../../static/images/home-icon2.png" mode=""></image></view>
+			</view>
+			
+			<view class="specsLable flex fs13">
+				<view class="tt" v-for="(item,index) in specsData" :key="index">{{item}}</view>
+			</view>
+		</view>
+		<view class="f5H10"></view>
+		
 		<view class="orderNav flexRowBetween pdt5 ">
 			<view class="tt flexCenter" :class="curr==1?'on':''" @click="changeCurr('1')">详细介绍</view>
 			<view class="tt flexCenter" :class="curr==2?'on':''"  @click="changeCurr('2')">评论（{{messageData.length}}）</view>
@@ -109,6 +121,33 @@
 		</view>
 		
 		
+		<!-- 规格选择 -->
+		<view class="black-bj" v-show="is_show"></view>
+		<view class="spaceShow whiteBj" v-show="is_spaceShow">
+			<view class="closebtn" @click="spaceShow">×</view>
+			<view class="flex">
+				<view class="pic radius8 oh mgr15"><image src="../../static/images/submit-ordersl-img.png" mode=""></image></view>
+				<view class="infor">
+					<view class="price ftw fs18 mgt10 pdt10 mgb15">42</view>
+					<view class="fs13">请选择规格</view>
+				</view>
+			</view>
+			<view class="mgt15">
+				<view class="fs13">规格</view>
+				<view class="specsLable flex fs13 color6">
+					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in seltSpecsData" :key="index" @click="specsChange(index)">{{item}}</view>
+				</view>
+			</view>
+			<view class="xqbotomBar pdlr4 mgb15" style="box-shadow:initial;">
+				<view class="bottom-btnCont flex d-flex radius10 oh white fs15 center" style="width: 100%;border-radius: 40rpx;">
+					<view class="btn  hei">加入购物车</view>
+					<view class="btn pubBj" @click="Router.navigateTo({route:{path:'/pages//'}})">立即购买</view>
+				</view>
+			</view>
+			
+		</view>
+		
+		
 	</view>
 </template>
 
@@ -124,7 +163,12 @@
 				groupData:[],
 				countDownList: [],
 				endTimeList: [],
-				canGroup:true
+				canGroup:true,
+				messageData:[],
+				specsCurr:0,
+				specsData:['定制版120ML','定制版100ML'],
+				is_spaceShow:false,
+				seltSpecsData:['定制版120ML','定制版100ML','定制版','定制版','定制版100ML','定制版120ML']
 			}
 		},
 		
@@ -188,6 +232,15 @@
 		},
 		
 		methods: {
+			specsChange(index){
+				const self = this;
+				self.specsCurr = index
+			},
+			spaceShow(){
+				const self = this;
+				self.is_show = !self.is_show;
+				self.is_spaceShow = !self.is_spaceShow 
+			},
 			changeCurr(curr){
 				const self = this;
 				if(curr!=self.curr){
@@ -427,5 +480,18 @@
 		color: #000000;
 		background: none;
 	}
-
+	
+	.bottom-btnCont{width: 520rpx;line-height: 80rpx;}
+	.bottom-btnCont .btn{width: 50%;}
+	.bottom-btnCont .hei{background-color: #3c3c3c;}
+	
+	.specsLable{flex-wrap: wrap;}
+	.specsLable .tt{margin: 30rpx 50rpx 0 0;border: 1px solid #ddd;line-height: 60rpx;padding: 0 16rpx;border-radius:10rpx;}
+	
+	.specsLable .tt.on{background-color: #ffedf4;color: #fc73aa;border: 1px solid #fc73aa;}
+	
+	.spaceShow{width: 100%;border-radius: 20rpx 20rpx 0 0;position: fixed;left: 0;right: 0;bottom: 0;height: 800rpx;z-index: 50;padding: 30rpx;padding-bottom: 140rpx;box-sizing: border-box;}
+	.spaceShow .pic{width: 210rpx;height: 210rpx;border: 1px solid #E1E1E1;}
+	.spaceShow .pic image{width: 100%;height: 100%;}
+	.arrowR image{width: 100%;height: 100%;}
 </style>
