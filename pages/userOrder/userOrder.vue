@@ -68,15 +68,19 @@
 						<view  v-for="(c_item,c_index) in item.child">
 							<view class="flexRowBetween">
 								<view class="pic">
-									<image :src="c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
-							&&c_item.orderItem[0].snap_product.mainImg&&c_item.orderItem[0].snap_product.mainImg[0]?c_item.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
+									<image :src="c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product&&c_item.orderItem[0].snap_product.product&&
+								c_item.orderItem[0].snap_product.product.mainImg&&c_item.orderItem[0].snap_product.product.mainImg[0]?c_item.orderItem[0].snap_product.product.mainImg[0].url:''" mode=""></image>
 								</view>
 								<view class="infor">
 									<view class="avoidOverflow2 fs13">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
-							&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}</view>
+								&&c_item.orderItem[0].snap_product&&c_item.orderItem[0].snap_product.product?c_item.orderItem[0].snap_product.product.title:''}}</view>
+								<view class="d-flex fs12 color6">
+									<view class="specsBtn mr-1">{{c_item.orderItem&&c_item.orderItem[0]&&c_item.orderItem[0].snap_product
+								&&c_item.orderItem[0].snap_product?c_item.orderItem[0].snap_product.title:''}}</view>
+								</view>
 									<view class="B-price flexRowBetween">
-										<view class="price">{{c_item.price?c_item.price:''}}</view>
-										<view class="fs13">×{{c_item.price?c_item.count:''}}</view>
+										<view class="price">{{c_item.unit_price?c_item.unit_price:''}}</view>
+										<view class="fs13">×{{c_item.count?c_item.count:''}}</view>
 									</view>
 								</view>
 							</view>

@@ -18,8 +18,12 @@
 						<view class="pic"><image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image></view>
 						<view class="infor">
 			 			<view class="tit fs13">{{item.title}}</view>
+							<view class="d-flex fs12 color6">
+								<view class="specsBtn mr-1">{{item.sku&&item.sku[item.skuIndex]?item.sku[item.skuIndex].title:''}}</view>
+							</view>
 							<view class="flexRowBetween B-price">
-								<view class="price ftw">{{item.price}}</view>
+								<view class="price ftw">{{item.sku&&item.sku[item.skuIndex]?item.sku[item.skuIndex].price:''}}</view>
+								
 								<view class="flexEnd">
 									<view class="numBox flex">
 										<view class="btn" @click="counter(index,'-')">-</view>
@@ -113,6 +117,7 @@
 		onShow() {
 			const self = this;
 			self.mainData = self.$Utils.getStorageArray('cartData');
+			console.log('self.mainData',self.mainData)
 			self.checkChooseAll();
 			self.countTotalPrice();
 		},
@@ -125,11 +130,10 @@
 				];
 				for (var i = 0; i < self.mainData.length; i++) {
 					if (self.mainData[i].isSelect) {
-						orderList.push({
-							product_id: self.mainData[i].id,
-							count: self.mainData[i].count,
-							product: self.mainData[i]
-						}, );
+						orderList.push(
+							{sku_id:self.mainData[i].sku[self.mainData[i].skuIndex].id,count:self.mainData[i].count,
+							product:self.mainData[i],skuIndex:self.mainData[i].skuIndex},
+						);
 					};
 				};
 				if (orderList.length == 0) {
@@ -142,8 +146,6 @@
 						path: '/pages/orderConfim/orderConfim'
 					}
 				})
-			
-			
 			},
 			
 			checkChooseAll() {
@@ -230,11 +232,13 @@
 				
 				for (var i = 0; i < self.mainData.length; i++) {
 					if (self.mainData[i].isSelect) {
-						self.totalPrice += self.mainData[i].price * self.mainData[i].count;
+						self.totalPrice += self.mainData[i].sku[self.mainData[i].skuIndex].price * self.mainData[i].count;
 					};
 				};
+				self.totalPrice = self.totalPrice.toFixed(2)
 				console.log(self.totalPrice)
 			},
+			
 			
 			
 		}

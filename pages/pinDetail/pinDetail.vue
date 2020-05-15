@@ -126,22 +126,25 @@
 		<view class="spaceShow whiteBj" v-show="is_spaceShow">
 			<view class="closebtn" @click="spaceShow">×</view>
 			<view class="flex">
-				<view class="pic radius8 oh mgr15"><image src="../../static/images/submit-ordersl-img.png" mode=""></image></view>
+				<view class="pic radius8 oh mgr15"><image :src="mainData.sku[specsCurr]&&mainData.sku[specsCurr].mainImg&&mainData.sku[specsCurr].mainImg[0]
+					?mainData.sku[specsCurr].mainImg[0].url:''" mode=""></image></view>
 				<view class="infor">
-					<view class="price ftw fs18 mgt10 pdt10 mgb15">42</view>
+					<view class="price ftw fs18 mgt10 pdt10 mgb15">{{mainData.sku[specsCurr]?mainData.sku[specsCurr].price:''}}</view>
 					<view class="fs13">请选择规格</view>
 				</view>
 			</view>
 			<view class="mgt15">
 				<view class="fs13">规格</view>
 				<view class="specsLable flex fs13 color6">
-					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in seltSpecsData" :key="index" @click="specsChange(index)">{{item}}</view>
+					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in mainData.sku" :key="index"
+					@click="specsChange(index)">{{item.title}}</view>
 				</view>
 			</view>
 			<view class="xqbotomBar pdlr4 mgb15" style="box-shadow:initial;">
 				<view class="bottom-btnCont flex d-flex radius10 oh white fs15 center" style="width: 100%;border-radius: 40rpx;">
-					<view class="btn  hei">加入购物车</view>
-					<view class="btn pubBj" @click="Router.navigateTo({route:{path:'/pages//'}})">立即购买</view>
+					<view class="btn  hei" @click="addCar">加入购物车</view>
+					<view class="btn pubBj" style="background: #ffafcf;" @click="goBuy(false)">单独购买</view>
+					<view class="btn pubBj"  @click="goBuy(true)">开团</view>
 				</view>
 			</view>
 			
@@ -168,7 +171,8 @@
 				specsCurr:0,
 				specsData:['定制版120ML','定制版100ML'],
 				is_spaceShow:false,
-				seltSpecsData:['定制版120ML','定制版100ML','定制版','定制版','定制版100ML','定制版120ML']
+				seltSpecsData:['定制版120ML','定制版100ML','定制版','定制版','定制版100ML','定制版120ML'],
+				is_show:false
 			}
 		},
 		
@@ -251,13 +255,19 @@
 			goBuy(isGroup){
 				const self = this;
 				uni.setStorageSync('canClick',false);
+				if(!self.mainData.sku[self.specsCurr]){
+					uni.setStorageSync('canClick',true);
+					self.$Utils.showToast('商品暂无规格！', 'none');
+					return
+				};
 				self.orderList.push(
-					{product_id:self.mainData.id,count:1,
-					type:1,product:self.mainData},
+					{sku_id:self.mainData.sku[self.specsCurr].id,count:1,
+					type:self.mainData.type,product:self.mainData,skuIndex:self.specsCurr},
 				);
 				uni.setStorageSync('payPro', self.orderList);
 				if(isGroup){
 					if(Date.parse(new Date())>parseInt(self.mainData.end_time)){
+						uni.setStorageSync('canClick',true);
 						uni.showModal({
 							title:'提示',
 							content:'限时特卖已结束，请单独购买',
@@ -266,6 +276,7 @@
 						return
 					}
 					if(Date.parse(new Date())<parseInt(self.mainData.start_time)){
+						uni.setStorageSync('canClick',true);
 						uni.showModal({
 							title:'提示',
 							content:'限时特卖还未开始，请单独购买',
@@ -281,17 +292,19 @@
 			},
 			
 			
-			addCar(){
+			addCar() {
 				const self = this;
+				var obj = self.mainData;
+				self.mainData.skuIndex = self.specsCurr;
 				var array = self.$Utils.getStorageArray('cartData');
 				for (var i = 0; i < array.length; i++) {
-					if(array[i].id == self.id){
+					if (array[i].sku[array[i].skuIndex].id == self.mainData.sku[self.specsCurr].id) {
 						var target = array[i]
 					}
 				}
-				if(target){
-					target.count  = target.count + 1
-				}else{
+				if (target) {
+					target.count = target.count + 1
+				} else {
 					var target = self.mainData;
 					target.count = 1;
 					target.isSelect = true;
@@ -300,12 +313,25 @@
 				self.$Utils.setStorageArray('cartData', target, 'id', 999);
 			},
 			
+			
+			
 			getMainData() {
 				const self = this;
 				const postData = {};
 				postData.searchItem = {
 					thirdapp_id: 2,
 					id: self.id
+				};
+				postData.getAfter = {
+					sku: {
+						tableName: 'Sku',
+						middleKey: 'product_no',
+						key: 'product_no',
+						condition: '=',
+						searchItem: {
+							status: 1
+						}
+					},
 				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {

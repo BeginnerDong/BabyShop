@@ -58,9 +58,12 @@
 					<view class="pic"><image :src="item.product&&item.product.mainImg&&item.product.mainImg[0]?item.product.mainImg[0].url:''" mode=""></image></view>
 					<view class="infor">
 						<view class="tit">{{item.product&&item.product.title?item.product.title:''}}</view>
+						<view class="d-flex fs12 color6">
+							<view class="specsBtn mr-1">{{item.product&&item.product.sku&&item.product.sku[item.skuIndex]?item.product.sku[item.skuIndex].title:''}}</view>
+						</view>
 						<view class="flexRowBetween B-price">
-							<view class="price ftw" v-if="!isGroup">{{item.product&&item.product.price?item.product.price:''}}</view>
-							<view class="price ftw" v-if="isGroup">{{item.product&&item.product.group_price?item.product.group_price:''}}</view>
+							<view class="price ftw" v-if="!isGroup">{{item.product&&item.product.sku&&item.product.sku[item.skuIndex]?item.product.sku[item.skuIndex].price:''}}</view>
+							<view class="price ftw" v-if="isGroup">{{item.product&&item.product.sku&&item.product.sku[item.skuIndex]?item.product.sku[item.skuIndex].group_price:''}}</view>
 							<view class="flexEnd">
 								<view class="numBox flex">
 									<view class="btn" @click="counter(index,'-')">-</view>
@@ -75,14 +78,14 @@
 			
 			<view class="pdlr4 flexRowBetween whiteBj pdt15 pdb15 radius8 mgt15">
 				<view>备注：</view>
-				<view class="BZ-Text"><input type="text" value="" placeholder="请输入备注信息" placeholder-class="" /></view>
+				<view class="BZ-Text"><input type="text" v-model="passage1" placeholder="请输入备注信息" placeholder-class="" /></view>
 			</view>
 			
 			
 		</view>
 		
 		<view class="xqbotomBar">
-			<view class="flex mgl15 fs13">总计：<view class="price fs14">{{totalPrice}}</view></view>
+			<view class="flex mgl15 fs13">总计：<view class="price fs14">{{totalPrice}}<span class="fs12">({{delivery>0?'含'+delivery+'元配送费':'已包邮'}})</span></view></view>
 			<button class="payBtn" open-type="getUserInfo"  @getuserinfo="Utils.stopMultiClick(submit)">立即购买</button>
 		</view>
 		
@@ -113,7 +116,9 @@
 				Utils:this.$Utils,
 				isGroup:false,
 				name:'',
-				mainImg:[]
+				mainImg:[],
+				passage1:'',
+				delivery:0
 			}
 		},
 		
@@ -125,9 +130,15 @@
 			if(options.group_no){
 				self.group_no = options.group_no
 			};
-			self.$Utils.loadAll(['getUserData'], self);
-			self.mainData = uni.getStorageSync('payPro');
-			self.countTotalPrice()
+			const callback = (res) => {
+				self.$Utils.loadAll(['getUserData'], self);
+				self.mainData = uni.getStorageSync('payPro');
+				self.countTotalPrice()
+			};
+			self.$Token.getProjectToken(callback, {
+				refreshToken: true
+			})
+			
 		},
 		
 		onShow() {
@@ -222,15 +233,22 @@
 				self.totalPrice = 0;
 				if(self.isGroup){
 					for (var i = 0; i < self.mainData.length; i++) {
-						self.totalPrice += self.mainData[i].product.group_price*self.mainData[i].count
+						self.totalPrice += self.mainData[i].product.sku[self.mainData[i].skuIndex].group_price*self.mainData[i].count
 					}
 				}else{
 					for (var i = 0; i < self.mainData.length; i++) {
-						self.totalPrice += self.mainData[i].product.price*self.mainData[i].count
+						self.totalPrice += self.mainData[i].product.sku[self.mainData[i].skuIndex].price*self.mainData[i].count
 					}
 				};
 				
 				self.totalPrice = parseFloat(self.totalPrice).toFixed(2)
+				if(parseFloat(uni.getStorageSync('user_info').thirdApp.delivery_standard)>self.totalPrice){
+					self.delivery = uni.getStorageSync('user_info').thirdApp.delivery_fee;
+					self.totalPrice = (parseFloat(self.totalPrice)+parseFloat(uni.getStorageSync('user_info').thirdApp.delivery_fee)).toFixed(2)
+				}else{
+					self.delivery = 0;
+					self.totalPrice = parseFloat(self.totalPrice).toFixed(2)
+				}
 				//console.log('wxPay',wxPay)
 				if (self.totalPrice > 0) {
 					self.pay.wxPay = {
@@ -258,10 +276,16 @@
 						return
 					}
 				};
-				
+				var data = {
+					passage1:self.passage1
+				};
 				var orderList = []
-				for (var i = 0; i < self.mainData.length; i++) {
+				/* for (var i = 0; i < self.mainData.length; i++) {
 					orderList.push({product_id:self.mainData[i].product_id,count:self.mainData[i].count,type:self.mainData[i].type})
+				} */
+				for (var i = 0; i < self.mainData.length; i++) {
+					orderList.push({sku_id:self.mainData[i].sku_id,count:self.mainData[i].count,data: data,
+					snap_address: self.addressData})
 				}
 				const callback = (user, res) => {
 					self.name = user.nickName;
@@ -285,7 +309,9 @@
 					level:1,
 					snap_address:self.addressData,
 					name:self.name,
-					mainImg:self.mainImg
+					mainImg:self.mainImg,
+					passage1:self.passage1,
+					price:self.pay.wxPay.price
 				};
 				postData.parent = 1;
 				postData.tokenFuncName = 'getProjectToken';
@@ -308,9 +334,14 @@
 					uni.setStorageSync('canClick', true);
 					if (res && res.solely_code == 100000) {
 						self.orderId = res.info.id;
+						var array = self.$Utils.getStorageArray('cartData');
 						for (var i = 0; i < orderList.length; i++) {
-							self.$Utils.delStorageArray('cartData', orderList[i], 'id');
-						}
+							for (var j = 0; j < array.length; j++) {
+								if(orderList[i].sku_id == array[j].sku[array[j].skuIndex].id){
+									self.$Utils.delStorageArray('cartData', orderList[i], 'id');
+								}
+							}
+						};
 						self.goPay()
 					} else {		
 						uni.showToast({

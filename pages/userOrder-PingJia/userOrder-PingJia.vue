@@ -10,13 +10,18 @@
 					</view>
 					<view class="flexRowBetween">
 						<view class="pic">
-							<image :src="mainData.orderItem&&mainData.orderItem[0]&&mainData.orderItem[0].snap_product
-							&&mainData.orderItem[0].snap_product.mainImg&&mainData.orderItem[0].snap_product.mainImg[0]?mainData.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
+							<image :src="mainData.orderItem&&mainData.orderItem[0]&&mainData.orderItem[0].snap_product&&mainData.orderItem[0].snap_product.product&&
+						mainData.orderItem[0].snap_product.product.mainImg&&mainData.orderItem[0].snap_product.product.mainImg[0]?mainData.orderItem[0].snap_product.product.mainImg[0].url:''" mode=""></image>
 						</view>
 						<view class="infor">
-							<view class="avoidOverflow2 fs13">{{mainData.title?mainData.title:''}}</view>
+							<view class="avoidOverflow2 fs13">{{mainData.orderItem&&mainData.orderItem[0]&&mainData.orderItem[0].snap_product
+						&&mainData.orderItem[0].snap_product&&mainData.orderItem[0].snap_product.product?mainData.orderItem[0].snap_product.product.title:''}}</view>
+						<view class="d-flex fs12 color6">
+							<view class="specsBtn mr-1">{{mainData.orderItem&&mainData.orderItem[0]&&mainData.orderItem[0].snap_product
+						&&mainData.orderItem[0].snap_product?mainData.orderItem[0].snap_product.title:''}}</view>
+						</view>
 							<view class="B-price flexRowBetween">
-								<view class="price">{{mainData.price?mainData.price:''}}</view>
+								<view class="price">{{mainData.unit_price?mainData.unit_price:''}}</view>
 								<view class="fs13">×{{mainData.count?mainData.count:''}}</view>
 							</view>
 						</view>
@@ -96,7 +101,7 @@
 						self.mainData = res.info.data[0];
 						self.submitData.order_no = self.mainData.order_no;
 						//self.submitData.passage1 = self.mainData.parent_no;
-						self.submitData.product_no = self.mainData.orderItem[0].snap_product.product_no
+						self.submitData.product_no = self.mainData.orderItem[0].snap_product.product.product_no
 					};
 					console.log('self.mainData', self.mainData)
 					self.$Utils.finishFunc('getMainData');

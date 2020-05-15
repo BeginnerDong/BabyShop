@@ -8,17 +8,21 @@
 						<view class="color9">交易时间：{{mainData.create_time}}</view>
 						<view class="red">{{mainData.transport_status==0?'待核销':'已核销'}}</view>
 					</view>
-					<view class="flexRowBetween"  v-for="(item,index) in mainData.child">
+					<view class="flexRowBetween" v-for="(item,index) in mainData.child">
 						<view class="pic">
-							<image :src="item.orderItem&&item.orderItem[0]&&item.orderItem[0].snap_product
-							&&item.orderItem[0].snap_product.mainImg&&item.orderItem[0].snap_product.mainImg[0]?item.orderItem[0].snap_product.mainImg[0].url:''" mode=""></image>
+							<image :src="item.orderItem&&item.orderItem[0]&&item.orderItem[0].snap_product&&item.orderItem[0].snap_product.product&&
+						item.orderItem[0].snap_product.product.mainImg&&item.orderItem[0].snap_product.product.mainImg[0]?item.orderItem[0].snap_product.product.mainImg[0].url:''" mode=""></image>
 						</view>
 						<view class="infor">
 							<view class="avoidOverflow2 fs13">{{item.orderItem&&item.orderItem[0]&&item.orderItem[0].snap_product
-							&&item.orderItem[0].snap_product?item.orderItem[0].snap_product.title:''}}</view>
+						&&item.orderItem[0].snap_product&&item.orderItem[0].snap_product.product?item.orderItem[0].snap_product.product.title:''}}</view>
+						<view class="d-flex fs12 color6">
+							<view class="specsBtn mr-1">{{item.orderItem&&item.orderItem[0]&&item.orderItem[0].snap_product
+						&&item.orderItem[0].snap_product?item.orderItem[0].snap_product.title:''}}</view>
+						</view>
 							<view class="B-price flexRowBetween">
-								<view class="price">{{item.price?item.price:''}}</view>
-								<view class="fs13">×{{item.price?item.count:''}}</view>
+								<view class="price">{{item.unit_price?item.unit_price:''}}</view>
+								<view class="fs13">×{{item.count?item.count:''}}</view>
 							</view>
 						</view>
 					</view>

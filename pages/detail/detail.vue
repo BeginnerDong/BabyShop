@@ -21,11 +21,11 @@
 			<view class="mglr4 pdt5">
 				<view class="flex fs12 color9">
 					<view class="mgr20">库存：{{mainData.stock?mainData.stock:''}}</view>
-					<view>销量：{{mainData.sale_count?mainData.sale_count:''}}</view>
+					<view>销量：{{mainData.sale_count?mainData.sale_count:'0'}}</view>
 				</view>
 				<view class="flex mgt5">
 					<view class="fs15 ftw red mgr15">￥{{mainData.price?mainData.price:''}}</view>
-					<view class="fs12 color6">原价：<span class="yuanJia">{{mainData.price?mainData.price:''}}</span></view>
+					<view class="fs12 color6">原价：<span class="yuanJia">{{mainData.o_price?mainData.o_price:''}}</span></view>
 				</view>
 			</view>
 		</view>
@@ -33,12 +33,8 @@
 		
 		<view class="mglr4 pdtb15  color6">
 			<view class="flexRowBetween" @click="spaceShow">
-				<view class="fs13">规格选择</view>
+				<view class="fs13">{{mainData.sku[specsCurr]?'已选'+mainData.sku[specsCurr].title:'选择商品规格'}}</view>
 				<view class="arrowR"><image src="../../static/images/home-icon2.png" mode=""></image></view>
-			</view>
-			
-			<view class="specsLable flex fs13">
-				<view class="tt" v-for="(item,index) in specsData" :key="index">{{item}}</view>
 			</view>
 		</view>
 		<view class="f5H10"></view>
@@ -77,7 +73,7 @@
 			</view>
 		</view>
 		<view class="xqbotomBar pdl15 center" style="height: 100rpx;">
-			<view class="ite flexCenter fs12"  @click="addCar">
+			<view class="ite flexCenter fs12"  @click="spaceShow">
 				<view class="flexColumn">
 					<view class="">
 						<image src="../../static/images/detailsl-icon1.png" mode=""></image>
@@ -85,7 +81,7 @@
 					<view class="mgt5">加入购物车</view>
 				</view>
 			</view>
-			<view class="payBtn" style="width: 500rpx;" @click="Utils.stopMultiClick(goBuy)">立即购买</view>
+			<view class="payBtn" style="width: 500rpx;" @click="spaceShow">立即购买</view>
 		</view>
 		
 		<!-- 规格选择 -->
@@ -93,21 +89,23 @@
 		<view class="spaceShow whiteBj" v-show="is_spaceShow">
 			<view class="closebtn" @click="spaceShow">×</view>
 			<view class="flex">
-				<view class="pic radius8 oh mgr15"><image src="../../static/images/submit-ordersl-img.png" mode=""></image></view>
+				<view class="pic radius8 oh mgr15"><image :src="mainData.sku[specsCurr]&&mainData.sku[specsCurr].mainImg&&mainData.sku[specsCurr].mainImg[0]
+					?mainData.sku[specsCurr].mainImg[0].url:''" mode=""></image></view>
 				<view class="infor">
-					<view class="price ftw fs18 mgt10 pdt10 mgb15">42</view>
+					<view class="price ftw fs18 mgt10 pdt10 mgb15">{{mainData.sku[specsCurr]?mainData.sku[specsCurr].price:''}}</view>
 					<view class="fs13">请选择规格</view>
 				</view>
 			</view>
 			<view class="mgt15">
 				<view class="fs13">规格</view>
 				<view class="specsLable flex fs13 color6">
-					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in seltSpecsData" :key="index" @click="specsChange(index)">{{item}}</view>
+					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in mainData.sku" :key="index"
+					@click="specsChange(index)">{{item.title}}</view>
 				</view>
 			</view>
 			<view class="xqbotomBar pdlr4 mgb15" style="box-shadow:initial;">
 				<view class="bottom-btnCont flex d-flex radius10 oh white fs15 center" style="width: 100%;border-radius: 40rpx;">
-					<view class="btn  hei">加入购物车</view>
+					<view class="btn  hei" @click="addCar">加入购物车</view>
 					<view class="btn pubBj" @click="Utils.stopMultiClick(goBuy)">立即购买</view>
 				</view>
 			</view>
@@ -216,30 +214,38 @@
 				}
 			},
 			
+			
+			
 			goBuy(){
 				const self = this;
+				if(!self.mainData.sku[self.specsCurr]){
+					uni.setStorageSync('canClick',true);
+					self.$Utils.showToast('商品暂无规格！', 'none');
+					return
+				};
 				uni.setStorageSync('canClick',false);
 				self.orderList.push(
-					{product_id:self.mainData.id,count:1,
-					type:1,product:self.mainData},
+					{sku_id:self.mainData.sku[self.specsCurr].id,count:1,
+					type:self.mainData.type,product:self.mainData,skuIndex:self.specsCurr},
 				);
 				uni.setStorageSync('payPro', self.orderList);
 				self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})
 				uni.setStorageSync('canClick',true);
 			},
 			
-			
-			addCar(){
+			addCar() {
 				const self = this;
+				var obj = self.mainData;
+				self.mainData.skuIndex = self.specsCurr;
 				var array = self.$Utils.getStorageArray('cartData');
 				for (var i = 0; i < array.length; i++) {
-					if(array[i].id == self.id){
+					if (array[i].sku[array[i].skuIndex].id == self.mainData.sku[self.specsCurr].id) {
 						var target = array[i]
 					}
 				}
-				if(target){
-					target.count  = target.count + 1
-				}else{
+				if (target) {
+					target.count = target.count + 1
+				} else {
 					var target = self.mainData;
 					target.count = 1;
 					target.isSelect = true;
@@ -255,6 +261,17 @@
 					thirdapp_id: 2,
 					id: self.id
 				};
+				postData.getAfter = {
+					sku: {
+						tableName: 'Sku',
+						middleKey: 'product_no',
+						key: 'product_no',
+						condition: '=',
+						searchItem: {
+							status: 1
+						}
+					},
+				};
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData = res.info.data[0];
@@ -267,6 +284,8 @@
 				};
 				self.$apis.productGet(postData, callback);
 			},
+			
+			
 			
 			getMessageData(isNew) {
 				var self = this;
