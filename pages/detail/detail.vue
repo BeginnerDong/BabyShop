@@ -20,7 +20,7 @@
 			</view>
 			<view class="mglr4 pdt5">
 				<view class="flex fs12 color9">
-					<view class="mgr20">库存：{{mainData.stock?mainData.stock:''}}</view>
+					<view class="mgr20">库存：{{mainData.stock?mainData.stock:'0'}}</view>
 					<view>销量：{{mainData.sale_count?mainData.sale_count:'0'}}</view>
 				</view>
 				<view class="flex mgt5">

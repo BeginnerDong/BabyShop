@@ -85,7 +85,7 @@
 		</view>
 		
 		<view class="xqbotomBar">
-			<view class="flex mgl15 fs13">总计：<view class="price fs14">{{totalPrice}}<span class="fs12">({{delivery>0?'含'+delivery+'元配送费':'已包邮'}})</span></view></view>
+			<view class="flex mgl15 fs13">总计：<view class="price fs14">{{totalPrice}}<span class="fs12" v-if="curr!=1">({{delivery>0?'含'+delivery+'元配送费':'已包邮'}})</span></view></view>
 			<button class="payBtn" open-type="getUserInfo"  @getuserinfo="Utils.stopMultiClick(submit)">立即购买</button>
 		</view>
 		
@@ -242,7 +242,7 @@
 				};
 				
 				self.totalPrice = parseFloat(self.totalPrice).toFixed(2)
-				if(parseFloat(uni.getStorageSync('user_info').thirdApp.delivery_standard)>self.totalPrice){
+				if(parseFloat(uni.getStorageSync('user_info').thirdApp.delivery_standard)>self.totalPrice&&self.curr!=1){
 					self.delivery = uni.getStorageSync('user_info').thirdApp.delivery_fee;
 					self.totalPrice = (parseFloat(self.totalPrice)+parseFloat(uni.getStorageSync('user_info').thirdApp.delivery_fee)).toFixed(2)
 				}else{
@@ -268,6 +268,11 @@
 						uni.setStorageSync('canClick', true);
 						self.$Utils.showToast('请填写收货人信息','none')
 						return
+					}
+					if (self.orderInfo.phone.trim().length != 11 || !/^1[3|4|5|6|7|8|9]\d{9}$/.test(self.orderInfo.phone)) {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast('请输入正确的手机号', 'none', 1000)
+						return;
 					}
 				}else{
 					if(JSON.stringify(self.addressData) == '{}'){
@@ -418,7 +423,9 @@
 					if(self.curr==3){
 						self.checkDistance()
 					}
-				}
+					self.countTotalPrice()
+				};
+				
 			},
 			
 		}

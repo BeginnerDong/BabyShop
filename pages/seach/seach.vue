@@ -21,7 +21,7 @@
 			</view>
 			
 			<view class="fs15 pdt15 pdb10 ftw">搜索记录</view>
-			<view class="historyDate  center fs13 flex fs12">
+			<view class="historyDate  center fs13 flex fs12" style="flex-wrap: wrap;">
 				<view class="item" v-for="(item,index) in historyDate" :key="index">{{item}}</view>
 			</view>
 		</view>
@@ -119,7 +119,8 @@
 				const postData = {};
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
-					thirdapp_id:2
+					thirdapp_id:2,
+					word:['not in','undefined']
 				};
 				postData.order = {
 					count:'desc'

@@ -19,8 +19,8 @@
 		</view>
 		<view class="mglr4 pdtb15">
 			<view class="flex fs12 color9">
-				<view class="mgr20">库存：{{mainData.stock?mainData.stock:''}}</view>
-				<view>销量：{{mainData.sale_count?mainData.sale_count:''}}</view>
+				<view class="mgr20">库存：{{mainData.stock?mainData.stock:'0'}}</view>
+				<view>销量：{{mainData.sale_count?mainData.sale_count:'0'}}</view>
 			</view>
 			<view class="flex mgt10">
 				<view class="fs15 ftw red mgr15">拼团价￥{{mainData.group_price?mainData.group_price:''}}</view>
@@ -62,12 +62,8 @@
 		
 		<view class="mglr4 pdtb15  color6">
 			<view class="flexRowBetween" @click="spaceShow">
-				<view class="fs13">规格选择</view>
+				<view class="fs13">{{mainData.sku[specsCurr]?'已选'+mainData.sku[specsCurr].title:'选择商品规格'}}</view>
 				<view class="arrowR"><image src="../../static/images/home-icon2.png" mode=""></image></view>
-			</view>
-			
-			<view class="specsLable flex fs13">
-				<view class="tt" v-for="(item,index) in specsData" :key="index">{{item}}</view>
 			</view>
 		</view>
 		<view class="f5H10"></view>
@@ -167,7 +163,7 @@
 				countDownList: [],
 				endTimeList: [],
 				canGroup:true,
-				messageData:[],
+		
 				specsCurr:0,
 				specsData:['定制版120ML','定制版100ML'],
 				is_spaceShow:false,

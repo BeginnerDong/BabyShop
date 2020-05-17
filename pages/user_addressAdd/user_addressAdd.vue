@@ -316,7 +316,11 @@
 				console.log('self.data.sForm', self.submitData)
 				console.log('pass', pass)
 				if (pass) {
-					
+					if (self.submitData.phone.trim().length != 11 || !/^1[3|4|5|6|7|8|9]\d{9}$/.test(self.submitData.phone)) {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast('请输入正确的手机号', 'none', 1000)
+						return;
+					}
 					if (self.id) {
 
 						self.addressUpdate();
