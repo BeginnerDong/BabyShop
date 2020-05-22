@@ -20,7 +20,7 @@
 			</view>
 			<view class="mglr4 pdt5">
 				<view class="flex fs12 color9">
-					<view class="mgr20">库存：{{mainData.stock?mainData.stock:'0'}}</view>
+					<!-- <view class="mgr20">库存：{{mainData.stock?mainData.stock:'0'}}</view> -->
 					<view>销量：{{mainData.sale_count?mainData.sale_count:'0'}}</view>
 				</view>
 				<view class="flex mgt5">
@@ -93,7 +93,7 @@
 					?mainData.sku[specsCurr].mainImg[0].url:''" mode=""></image></view>
 				<view class="infor">
 					<view class="price ftw fs18 mgt10 pdt10 mgb15">{{mainData.sku[specsCurr]?mainData.sku[specsCurr].price:''}}</view>
-					<view class="fs13">请选择规格</view>
+					<view class="fs13">库存：{{mainData.sku[specsCurr]?mainData.sku[specsCurr].stock:'0'}}</view>
 				</view>
 			</view>
 			<view class="mgt15">

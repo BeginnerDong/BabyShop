@@ -256,11 +256,7 @@
 					self.$Utils.showToast('商品暂无规格！', 'none');
 					return
 				};
-				self.orderList.push(
-					{sku_id:self.mainData.sku[self.specsCurr].id,count:1,
-					type:self.mainData.type,product:self.mainData,skuIndex:self.specsCurr},
-				);
-				uni.setStorageSync('payPro', self.orderList);
+				
 				if(isGroup){
 					if(Date.parse(new Date())>parseInt(self.mainData.end_time)){
 						uni.setStorageSync('canClick',true);
@@ -280,8 +276,18 @@
 						})
 						return
 					};
+					self.orderList.push(
+						{sku_id:self.mainData.sku[self.specsCurr].id,count:1,
+						type:self.mainData.type,product:self.mainData,skuIndex:self.specsCurr},
+					);
+					uni.setStorageSync('payPro', self.orderList);
 					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim?isGroup=true'}})
 				}else{
+					self.orderList.push(
+						{sku_id:self.mainData.sku[self.specsCurr].id,count:1,
+						type:self.mainData.type,product:self.mainData,skuIndex:self.specsCurr},
+					);
+					uni.setStorageSync('payPro', self.orderList);
 					self.Router.navigateTo({route:{path:'/pages/orderConfim/orderConfim'}})
 				}
 				uni.setStorageSync('canClick',true);

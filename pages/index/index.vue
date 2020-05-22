@@ -26,7 +26,7 @@
 			</view>
 		</view>
 		
-		<view class="R-fixIcon" @click="call()"><image src="../../static/images/home-icon3.png" mode=""></image></view>
+		<button class="R-fixIcon" open-type="contact"><image src="../../static/images/home-icon3.png" mode=""></image></button>
 		
 		<view class="pdlr4">
 			

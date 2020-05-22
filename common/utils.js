@@ -698,6 +698,8 @@ export default {
 		return new Date(mydata) / 1000;
 
 	},
+	
+	
 
 	timeto(date, type) {
 		var seperator1 = "-";
