@@ -24,7 +24,7 @@
 				<view class="nodata" v-if="mainData.length==0"><image src="../../static/images/nodata.png" mode=""></image></view>
 			</view>
 		</view>
-		
+		<view style="width: 100%;height: 110rpx;"></view>
 		<!--底部tab键-->
 		<view class="navbar">
 			<view class="navbar_item" @click="Router.redirectTo({route:{path:'/pages/index/index'}})">
@@ -102,6 +102,9 @@
 					thirdapp_id: 2,
 					type:3,
 					id:['not in',[1]]
+				};
+				postData.order = {
+					listorder:'desc'
 				};
 				var callback = function(res) {
 					if (res.info.data.length > 0 && res.info.data[0]) {

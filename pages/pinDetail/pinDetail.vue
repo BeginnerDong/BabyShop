@@ -131,10 +131,11 @@
 			</view>
 			<view class="mgt15">
 				<view class="fs13">规格</view>
-				<view class="specsLable flex fs13 color6">
-					<view class="tt" :class="specsCurr==index?'on':''" v-for="(item,index) in mainData.sku" :key="index"
+				
+				<scroll-view class="specsLable flex fs13 color6" scroll-y="true" style="height: 360rpx;">
+					<view class="tt" style="display: inline-block;" :class="specsCurr==index?'on':''" v-for="(item,index) in mainData.sku" :key="index"
 					@click="specsChange(index)">{{item.title}}</view>
-				</view>
+				</scroll-view>
 			</view>
 			<view class="xqbotomBar pdlr4 mgb15" style="box-shadow:initial;">
 				<view class="bottom-btnCont flex d-flex radius10 oh white fs15 center" style="width: 100%;border-radius: 40rpx;">
