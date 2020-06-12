@@ -97,10 +97,18 @@
 				</view>
 			</view>
 			<view class="mgt15">
-				<view class="fs13">规格</view>
+				
 				<scroll-view class="specsLable flex fs13 color6" scroll-y="true" style="height: 360rpx;">
-					<view class="tt" style="display: inline-block;" :class="specsCurr==index?'on':''" v-for="(item,index) in mainData.sku" :key="index"
-					@click="specsChange(index)">{{item.title}}</view>
+					<view v-for="(item,index) in labelData" :key="index" style="margin-top: 20rpx;">
+						<view class="fs13">{{item.title}}</view>
+						<view class="tt" v-for="(c_item,c_index) in item.children" 
+						style="display: inline-block;"
+						 :class="Utils.inArray(c_item.id,choose_sku_item)==-1?'cantChoose'
+						 :(Utils.inArray(c_item.id,sku_item)!=-1?'on':'')"
+						  :key="c_index" :data-c_id="c_item.id" :data-id="item.id"
+						@click="Utils.inArray($event.currentTarget.dataset.c_id,choose_sku_item)!=-1?chooseSku($event.currentTarget.dataset.id,$event.currentTarget.dataset.c_id):''">{{c_item.title}}</view>
+					</view>
+					
 				</scroll-view>
 			</view>
 			<view class="xqbotomBar pdlr4 mgb15" style="box-shadow:initial;">
@@ -124,17 +132,18 @@
 				Utils:this.$Utils,
 				mainData:{},
 				is_show:false,
-				labelData: [
-					"../../static/images/detailsl-img.png",
-					"../../static/images/detailsl-img.png",
-					"../../static/images/detailsl-img.png"
-				],
+				
 				curr:1,
 				messageData:[],
 				specsCurr:0,
 				specsData:['定制版120ML','定制版100ML'],
 				is_spaceShow:false,
 				seltSpecsData:['定制版120ML','定制版100ML','定制版','定制版','定制版100ML','定制版120ML'],
+				labelData:[],
+				skuData:[],
+				
+				sku_item:[],
+				choose_sku_item:[]
 			}
 		},
 		
@@ -214,7 +223,42 @@
 				}
 			},
 			
+			chooseSku(parentid,id){
+				const self = this;
+			    self.skuData = {};
+			    if(self.choose_sku_item.indexOf(id)==-1){
+			      return;
+			    };
+			    self.choose_sku_item = [];
+			    var sku = self.mainData.label[parentid];
+			    for(var i=0;i<sku.children.length;i++){
+			      if(self.sku_item.indexOf(sku.children[i].id)!=-1){
+			        self.sku_item.splice(self.sku_item.indexOf(sku.children[i].id), 1);
+			      };
+			      self.choose_sku_item.push(sku.children[i].id);
+			    };
 			
+			    
+			    for (var i = 0; i < self.mainData.sku.length; i++) {
+			      if(self.mainData.sku[i].sku_item.indexOf(parseInt(id))!=-1){
+			        self.choose_sku_item.push.apply(self.choose_sku_item,self.mainData.sku[i].sku_item);  
+			      };
+			    };
+			
+			    for(var i=0;i<self.sku_item.length;i++){
+			      if(self.choose_sku_item.indexOf(parseInt(self.sku_item[i]))==-1){
+			        self.sku_item.splice(i, 1); 
+			      };
+			    };
+			    self.sku_item.push(id);
+			    for(var i=0;i<self.mainData.sku.length;i++){ 
+			      if(JSON.stringify(self.mainData.sku[i].sku_item.sort())==JSON.stringify(self.sku_item.sort())){
+			        //self.id = self.mainData.sku[i].id;
+			        self.skuData = self.$Utils.cloneForm(self.mainData.sku[i]);
+					self.specsCurr = i
+			      };   
+			    }; 
+			},
 			
 			goBuy(){
 				const self = this;
@@ -275,6 +319,21 @@
 				const callback = (res) => {
 					if (res.info.data.length > 0) {
 						self.mainData = res.info.data[0];
+						for(var key in self.mainData.label){
+						  if(self.mainData.sku_array.indexOf(parseInt(key))!=-1){
+						    self.labelData.push(self.mainData.label[key])
+						  };    
+						};
+						console.log('self.labelData',self.labelData)
+						for (var i = 0; i < self.mainData.sku.length; i++) {
+						  /* if(self.mainData.sku[i].id==self.id){
+						    self.skuData = self.$Utils.cloneForm(self.mainData.sku[i]);
+						  }; */
+				
+						  self.choose_sku_item.push.apply(self.choose_sku_item,self.mainData.sku[i].sku_item);
+						};
+						self.skuData = self.$Utils.cloneForm(self.mainData.sku[0]);
+						self.sku_item = self.skuData.sku_item;
 						const regex = new RegExp('<img', 'gi');
 						self.mainData.content = self.mainData.content.replace(regex, `<img style="max-width: 100%;height:auto"`);
 						self.getMessageData()
@@ -362,4 +421,5 @@
 	.spaceShow .pic{width: 210rpx;height: 210rpx;border: 1px solid #E1E1E1;}
 	.spaceShow .pic image{width: 100%;height: 100%;}
 	.arrowR image{width: 100%;height: 100%;}
+	.cantChosse{border:1px dashed  #e5e5e5;color:#e5e5e5;}
 </style>

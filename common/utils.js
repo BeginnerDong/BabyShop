@@ -371,6 +371,12 @@ export default {
 		};
 		return result;
 	},
+	
+	inArray(value, array) {
+		console.log('array',array)
+		return array.indexOf(parseInt(value));
+	},
+	
 
 	getStorageArray(storageName, key, value) {
 		const self = this;
