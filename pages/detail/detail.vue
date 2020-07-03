@@ -48,7 +48,7 @@
 		<view class="pdt15" v-show="curr==1">
 			<view class="mglr4 xqInfor">
 				<view class="cont fs14">
-					<view class="content ql-editor" style="padding:0;"
+					<view class="content ql-editor" style="padding:0;line-height: 0;"
 					v-html="mainData.content">
 					</view>
 				</view>
